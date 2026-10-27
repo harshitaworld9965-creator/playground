@@ -613,3 +613,74 @@ a {
     top: 10%;
   }
 }
+
+.experiment-window{
+  width: 100%;
+  overflow: hidden;
+}
+
+.experiment-track{
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 18px;
+  width: max-content;
+}
+
+.experiment-card{
+  flex: 0 0 min(72vw, 720px);
+  min-height: 360px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  opacity: 1;
+  transform: none;
+}
+
+
+.experiments {
+  position: relative;
+  width: 100%;
+  overflow: clip;
+}
+
+.experiment-window {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.experiment-track {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 18px;
+  width: max-content;
+}
+
+.experiment-card {
+  box-sizing: border-box;
+  flex: 0 0 min(72vw, 720px);
+  height: min(42vh, 360px);
+  min-height: 240px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .experiment-card {
+    flex-basis: 85vw;
+    height: 35vh;
+    min-height: 220px;
+  }
+}

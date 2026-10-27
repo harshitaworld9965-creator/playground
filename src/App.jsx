@@ -3,7 +3,6 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
 import "./App.css";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -20,44 +19,52 @@ function App() {
 
   useGSAP(
     () => {
-      // INTRO ANIMATION
+      // 1. HERO INTRO
       const intro = gsap.timeline({
-        defaults: { ease: "power4.out" },
+        defaults: { ease: "power3.out" },
       });
 
       intro
         .from(".navbar", {
-          y: -30,
+          y: -25,
           opacity: 0,
           duration: 0.7,
         })
         .from(
           ".hero-title h1",
-          { y: 100, opacity: 0, duration: 1 },
+          {
+            y: 90,
+            opacity: 0,
+            duration: 1,
+          },
           "-=0.3",
         )
         .from(
           ".shape",
           {
             scale: 0,
-            rotation: -90,
-            opacity: 0,
-            duration: 0.7,
+            rotation: -30,
+            duration: 0.8,
             stagger: 0.12,
           },
-          "-=0.5",
+          "-=0.6",
         )
         .from(
           ".hero-note, .hero-topline, .hero-bottom",
-          { y: 20, opacity: 0, duration: 0.5, stagger: 0.1 },
+          {
+            y: 20,
+            opacity: 0,
+            duration: 0.6,
+            stagger: 0.1,
+          },
           "-=0.4",
         );
 
-      // SCRUBBED MANIFESTO HEADLINE
+      // 2. MANIFESTO REVEAL
       gsap.fromTo(
         ".manifesto h2",
         {
-          y: 120,
+          y: 100,
           opacity: 0.2,
         },
         {
@@ -68,97 +75,110 @@ function App() {
             trigger: ".manifesto",
             start: "top 80%",
             end: "top 25%",
-            scrub: true,
-            markers: true,
+            scrub: 1,
           },
         },
       );
 
-      // EXPERIMENT CARD REVEALS
-      ScrollTrigger.batch(".experiment-card", {
-        start: "top 85%",
-        onEnter: (cards) => {
-          gsap.to(cards, {
-            y: 0,
-            opacity: 1,
-            stagger: 0.15,
-            duration: 0.7,
-            ease: "power3.out",
-            overwrite: true,
-          });
-        },
-        onLeaveBack: (cards) => {
-          gsap.set(cards, {
-            y: 60,
-            opacity: 0,
-          });
-        },
-      });
+      // 3. PINNED HORIZONTAL EXPERIMENT GALLERY
+      const experimentsSection =
+        playgroundRef.current.querySelector(".experiments");
+      const track =
+        playgroundRef.current.querySelector(".experiment-track");
 
-      gsap.to(".scroll-progress-bar", {
-        scaleX:1,
-        ease:'none',
-        scrollTrigger: {
-          trigger:document.documentElement,
-          start:"top top",
-          end:'bottom bottom',
-          scrub:true,
-        },
-      });
+      if (experimentsSection && track) {
+        const getScrollDistance = () =>
+          Math.max(
+            0,
+            track.scrollWidth - experimentsSection.clientWidth,
+          );
 
+        gsap.to(track, {
+          x: () => -getScrollDistance(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: experimentsSection,
+            start: "top top",
+            end: () => `+=${getScrollDistance()}`,
+            pin: true,
+            scrub: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+      }
+
+      // 4. PINNED PLAYGROUND SCENE
       const pinTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: ".pin-section",
-          start:"top top",
+          start: "top top",
           end: "+=700",
-          pin:true,
-          scrub:true,
-          markers:true,
+          pin: true,
+          scrub: 1,
+          invalidateOnRefresh: true,
         },
       });
 
       pinTimeline
-      .from(".pin-content h2", {
-        x:-150,
-        opacity:0,
-        ease:'none',
-      })
-      .from(
-        ".pin-description",
-        {
-          y:40,
-          opacity:0,
-          ease:'none',
+        .from(".pin-content h2", {
+          x: -100,
+          opacity: 0,
+          ease: "none",
+        })
+        .from(
+          ".pin-description",
+          {
+            y: 35,
+            opacity: 0,
+            ease: "none",
+          },
+          "<",
+        )
+        .to(
+          ".pin-symbol",
+          {
+            rotation: 360,
+            scale: 1.2,
+            ease: "none",
+          },
+          0,
+        );
+
+      // 5. PAGE SCROLL PROGRESS
+      gsap.to(".scroll-progress-bar", {
+        scaleX: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: document.documentElement,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.3,
         },
-        "-=0.3",
-      )
-      .to(
-        ".pin-symbol",
-        {
-          rotation:180,
-          scale:1.4,
-          ease:'none',
-        },
-        0,
-      );
+      });
+
+      // Recalculate trigger positions after images and layout settle.
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     },
-    { scope: playgroundRef },
+    {
+      scope: playgroundRef,
+    },
   );
 
-  function animateShape(selector) {
+  // Decorative shapes respond to hover.
+  const animateShape = (selector) => {
     const shape = playgroundRef.current?.querySelector(selector);
     if (!shape) return;
 
     gsap.to(shape, {
       rotation: "+=25",
-      scale: 1.15,
+      scale: 1.12,
       duration: 0.35,
-      ease: "back.out(2)",
+      ease: "power2.out",
       overwrite: "auto",
     });
-  }
+  };
 
-  function resetShape(selector) {
+  const resetShape = (selector) => {
     const shape = playgroundRef.current?.querySelector(selector);
     if (!shape) return;
 
@@ -166,166 +186,138 @@ function App() {
       rotation: 0,
       scale: 1,
       duration: 0.45,
-      ease: "elastic.out(1, 0.5)",
+      ease: "power2.out",
       overwrite: "auto",
     });
-  }
+  };
 
   return (
     <main className="playground" ref={playgroundRef}>
       <div className="scroll-progress">
-        <div className="scroll-progress-bar"></div>
+        <div className="scroll-progress-bar" />
       </div>
+
       <nav className="navbar">
-        <a className="logo" href="#home">
-          PLAY<span>GROUND</span>®
+        <a className="nav-logo" href="#home">
+          PLAYGROUND<span>®</span>
         </a>
-        <p className="nav-note">A LAB FOR THE UNEXPECTED</p>
-        <a className="menu-link" href="#explore">
-          EXPLORE <span>↗</span>
+
+        <span className="nav-note">A CREATIVE LAB FOR CURIOUS MINDS</span>
+
+        <a className="nav-link" href="#experiments">
+          LET'S PLAY ↗
         </a>
       </nav>
 
       <section className="hero" id="home">
-        <div className="hero-topline">
-          <span>INDEPENDENT CREATIVE LAB</span>
-          <span>EST. 2026 — EVERYWHERE</span>
-        </div>
+        <p className="hero-topline">INDEPENDENT CREATIVE EXPERIMENTS / 2026</p>
 
         <div className="hero-title">
           <h1>
-            LET'S
+            LET'S MAKE
             <br />
-            MAKE
-            <br />
-            <span className="title-last">
-              <span className="title-it">SOME</span>
-              <span className="title-fun">FUN.</span>
-            </span>
+            SOME FUN<span>.</span>
           </h1>
+        </div>
 
-          <div
-            className="shape shape-star"
-            aria-hidden="true"
-            onMouseEnter={() => animateShape(".shape-star")}
-            onMouseLeave={() => resetShape(".shape-star")}
-          >
-            ✳
-          </div>
+        <p className="hero-note">
+          LESS PERFECT.
+          <br />
+          MORE PLAYFUL.
+        </p>
 
-          <div
-            className="shape shape-orb"
-            aria-hidden="true"
-            onMouseEnter={() => animateShape(".shape-orb")}
-            onMouseLeave={() => resetShape(".shape-orb")}
-          >
-            <span />
-          </div>
+        <div
+          className="shape shape-star"
+          onMouseEnter={() => animateShape(".shape-star")}
+          onMouseLeave={() => resetShape(".shape-star")}
+        >
+          ✳
+        </div>
 
-          <div
-            className="shape shape-flower"
-            aria-hidden="true"
-            onMouseEnter={() => animateShape(".shape-flower")}
-            onMouseLeave={() => resetShape(".shape-flower")}
-          >
-            ✿
-          </div>
+        <div
+          className="shape shape-orb"
+          onMouseEnter={() => animateShape(".shape-orb")}
+          onMouseLeave={() => resetShape(".shape-orb")}
+        />
 
-          <div
-            className="shape shape-spark"
-            aria-hidden="true"
-            onMouseEnter={() => animateShape(".shape-spark")}
-            onMouseLeave={() => resetShape(".shape-spark")}
-          >
-            +
-          </div>
+        <div
+          className="shape shape-flower"
+          onMouseEnter={() => animateShape(".shape-flower")}
+          onMouseLeave={() => resetShape(".shape-flower")}
+        >
+          ✿
+        </div>
 
-          <p className="hero-note">
-            LESS SCROLLING.
-            <br />
-            MORE PLAYING.
-          </p>
+        <div
+          className="shape shape-spark"
+          onMouseEnter={() => animateShape(".shape-spark")}
+          onMouseLeave={() => resetShape(".shape-spark")}
+        >
+          +
         </div>
 
         <div className="hero-bottom">
-          <p>
-            WE MAKE DIGITAL THINGS
-            <br />
-            THAT REFUSE TO BE BORING.
-          </p>
-          <a className="explore-button" href="#explore">
-            TAKE A LOOK <span>↓</span>
-          </a>
-          <p className="scroll-note">
-            SCROLL TO WANDER
-            <br />
-            THERE ARE NO RULES.
-          </p>
+          <span>SCROLL TO EXPLORE</span>
+          <span>↓</span>
+          <span>MADE FOR THE JOY OF MAKING</span>
         </div>
       </section>
 
-      <section className="manifesto" id="explore">
-        <div className="manifesto-label">
-          <span>01 / OUR PHILOSOPHY</span>
-          <span>GOOD IDEAS MISBEHAVE.</span>
-        </div>
-
+      <section className="manifesto">
+        <p>01 / THE MANIFESTO</p>
         <h2>
-          BORING IS
+          GOOD IDEAS
           <br />
-          <span>NOT</span> AN OPTION<span className="period">.</span>
+          NEED ROOM
+          <br />
+          TO <span>PLAY.</span>
         </h2>
-
-        <p>
-          A little curiosity. A little chaos.
-          <br />
-          A whole lot of imagination.
-        </p>
       </section>
 
-      <section className="experiments">
+      <section className="experiments" id="experiments">
         <div className="experiments-heading">
           <p>02 / THE EXPERIMENTS</p>
           <h2>THINGS WE LIKE TO PLAY WITH.</h2>
         </div>
 
-        <div className="experiment-grid">
-          {experiments.map((experiment) => (
-            <article
-              className={`experiment-card card-${experiment.color}`}
-              key={experiment.number}
-            >
-              <span className="card-number">{experiment.number}</span>
-              <h3>{experiment.title}</h3>
-              <span className="card-arrow">↗</span>
-            </article>
-          ))}
+        <div className="experiment-window">
+          <div className="experiment-track">
+            {experiments.map((experiment) => (
+              <article
+                className={`experiment-card card-${experiment.color}`}
+                key={experiment.number}
+              >
+                <span className="card-number">{experiment.number}</span>
+                <h3>{experiment.title}</h3>
+                <span className="card-arrow">↗</span>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="pin-section">
         <div className="pin-content">
-          <p className="pin-label">03 / STAY A WHILE</p>
-
+          <p>03 / A LITTLE CHAOS</p>
           <h2>
-            DON'T
-            <br/>
-            BLINK<span>.</span>
+            STAY
+            <br />
+            CURIOUS<span>.</span>
           </h2>
-
           <p className="pin-description">
-            Some things are better when you slow down.
+            Follow the weird idea. Try the unexpected thing. See what happens.
           </p>
+        </div>
 
-          <span className="pin-symbol" aria-hidden="true">
-            *
-          </span>
+        <div className="pin-symbol" aria-hidden="true">
+          ✳
         </div>
       </section>
 
       <footer className="footer">
-        <span>PLAYGROUND® — CREATIVE EXPERIMENTS</span>
-        <span>MADE FOR THE FUN OF IT ✳</span>
+        <p>PLAY MORE. WORRY LESS.</p>
+        <a href="#home">BACK TO TOP ↑</a>
+        <span>© PLAYGROUND 2026</span>
       </footer>
     </main>
   );
