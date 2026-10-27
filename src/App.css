@@ -437,3 +437,100 @@ a {
   pointer-events: auto;
   cursor: pointer;
 }
+
+
+/* EXPERIMENTS */
+
+.experiments {
+  padding: 48px 5% 100px;
+  background: #f6f3ed;
+  color: var(--ink);
+}
+
+.experiments-heading > p {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.experiments-heading h2 {
+  max-width: 850px;
+  margin: 70px 0 50px;
+  font-size: clamp(42px, 8vw, 100px);
+  line-height: 0.95;
+  letter-spacing: -0.08em;
+}
+
+.experiment-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.experiment-card {
+  min-height: 260px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(60px);
+}
+
+.card-number {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.experiment-card h3 {
+  max-width: 360px;
+  font-size: clamp(28px, 4vw, 52px);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+.card-arrow {
+  position: absolute;
+  right: 24px;
+  top: 20px;
+  font-size: 24px;
+}
+
+.card-pink {
+  background: var(--pink);
+}
+
+.card-orange {
+  background: var(--orange);
+}
+
+.card-blue {
+  background: var(--blue);
+  color: white;
+}
+
+.card-lime {
+  background: var(--lime);
+}
+
+@media (max-width: 600px) {
+  .experiments {
+    padding-bottom: 64px;
+  }
+
+  .experiment-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .experiment-card {
+    min-height: 220px;
+  }
+
+  .experiments-heading h2 {
+    margin: 48px 0 32px;
+  }
+}

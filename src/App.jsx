@@ -2,16 +2,25 @@
 import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import "./App.css";
 
-gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+const experiments = [
+  { number: "01", title: "TYPE THAT MOVES", color: "pink" },
+  { number: "02", title: "SHAPES GONE WILD", color: "orange" },
+  { number: "03", title: "SCROLL YOUR HEART OUT", color: "blue" },
+  { number: "04", title: "BEAUTIFUL CHAOS", color: "lime" },
+];
 
 function App() {
   const playgroundRef = useRef(null);
 
   useGSAP(
     () => {
+      // INTRO TIMELINE
       const intro = gsap.timeline({
         defaults: { ease: "power4.out" },
       });
@@ -24,11 +33,7 @@ function App() {
         })
         .from(
           ".hero-title h1",
-          {
-            y: 100,
-            opacity: 0,
-            duration: 1,
-          },
+          { y: 100, opacity: 0, duration: 1 },
           "-=0.3",
         )
         .from(
@@ -44,21 +49,51 @@ function App() {
         )
         .from(
           ".hero-note, .hero-topline, .hero-bottom",
-          {
-            y: 20,
-            opacity: 0,
-            duration: 0.5,
-            stagger: 0.1,
-          },
+          { y: 20, opacity: 0, duration: 0.5, stagger: 0.1 },
           "-=0.4",
         );
+
+      // MANIFESTO SCROLL ANIMATION
+      gsap.from(".manifesto h2", {
+        y: 100,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".manifesto",
+          start: "top 75%",
+          end: "bottom 25%",
+          toggleActions: "play none none reverse",
+          markers: true,
+        },
+      });
+
+      // BATCHED EXPERIMENT CARD REVEALS
+      ScrollTrigger.batch(".experiment-card", {
+        start: "top 85%",
+        onEnter: (cards) => {
+          gsap.to(cards, {
+            y: 0,
+            opacity: 1,
+            stagger: 0.15,
+            duration: 0.7,
+            ease: "power3.out",
+            overwrite: true,
+          });
+        },
+        onLeaveBack: (cards) => {
+          gsap.set(cards, {
+            y: 60,
+            opacity: 0,
+          });
+        },
+      });
     },
     { scope: playgroundRef },
   );
 
   function animateShape(selector) {
     const shape = playgroundRef.current?.querySelector(selector);
-
     if (!shape) return;
 
     gsap.to(shape, {
@@ -72,7 +107,6 @@ function App() {
 
   function resetShape(selector) {
     const shape = playgroundRef.current?.querySelector(selector);
-
     if (!shape) return;
 
     gsap.to(shape, {
@@ -90,9 +124,7 @@ function App() {
         <a className="logo" href="#home">
           PLAY<span>GROUND</span>®
         </a>
-
         <p className="nav-note">A LAB FOR THE UNEXPECTED</p>
-
         <a className="menu-link" href="#explore">
           EXPLORE <span>↗</span>
         </a>
@@ -165,11 +197,9 @@ function App() {
             <br />
             THAT REFUSE TO BE BORING.
           </p>
-
           <a className="explore-button" href="#explore">
             TAKE A LOOK <span>↓</span>
           </a>
-
           <p className="scroll-note">
             SCROLL TO WANDER
             <br />
@@ -195,6 +225,26 @@ function App() {
           <br />
           A whole lot of imagination.
         </p>
+      </section>
+
+      <section className="experiments">
+        <div className="experiments-heading">
+          <p>02 / THE EXPERIMENTS</p>
+          <h2>THINGS WE LIKE TO PLAY WITH.</h2>
+        </div>
+
+        <div className="experiment-grid">
+          {experiments.map((experiment) => (
+            <article
+              className={`experiment-card card-${experiment.color}`}
+              key={experiment.number}
+            >
+              <span className="card-number">{experiment.number}</span>
+              <h3>{experiment.title}</h3>
+              <span className="card-arrow">↗</span>
+            </article>
+          ))}
+        </div>
       </section>
 
       <footer className="footer">
