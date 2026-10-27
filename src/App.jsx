@@ -20,7 +20,7 @@ function App() {
 
   useGSAP(
     () => {
-      // INTRO TIMELINE
+      // INTRO ANIMATION
       const intro = gsap.timeline({
         defaults: { ease: "power4.out" },
       });
@@ -53,22 +53,28 @@ function App() {
           "-=0.4",
         );
 
-      // MANIFESTO SCROLL ANIMATION
-      gsap.from(".manifesto h2", {
-        y: 100,
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".manifesto",
-          start: "top 75%",
-          end: "bottom 25%",
-          toggleActions: "play none none reverse",
-          markers: true,
+      // SCRUBBED MANIFESTO HEADLINE
+      gsap.fromTo(
+        ".manifesto h2",
+        {
+          y: 120,
+          opacity: 0.2,
         },
-      });
+        {
+          y: 0,
+          opacity: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".manifesto",
+            start: "top 80%",
+            end: "top 25%",
+            scrub: true,
+            markers: true,
+          },
+        },
+      );
 
-      // BATCHED EXPERIMENT CARD REVEALS
+      // EXPERIMENT CARD REVEALS
       ScrollTrigger.batch(".experiment-card", {
         start: "top 85%",
         onEnter: (cards) => {
@@ -88,6 +94,53 @@ function App() {
           });
         },
       });
+
+      gsap.to(".scroll-progress-bar", {
+        scaleX:1,
+        ease:'none',
+        scrollTrigger: {
+          trigger:document.documentElement,
+          start:"top top",
+          end:'bottom bottom',
+          scrub:true,
+        },
+      });
+
+      const pinTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".pin-section",
+          start:"top top",
+          end: "+=700",
+          pin:true,
+          scrub:true,
+          markers:true,
+        },
+      });
+
+      pinTimeline
+      .from(".pin-content h2", {
+        x:-150,
+        opacity:0,
+        ease:'none',
+      })
+      .from(
+        ".pin-description",
+        {
+          y:40,
+          opacity:0,
+          ease:'none',
+        },
+        "-=0.3",
+      )
+      .to(
+        ".pin-symbol",
+        {
+          rotation:180,
+          scale:1.4,
+          ease:'none',
+        },
+        0,
+      );
     },
     { scope: playgroundRef },
   );
@@ -120,6 +173,9 @@ function App() {
 
   return (
     <main className="playground" ref={playgroundRef}>
+      <div className="scroll-progress">
+        <div className="scroll-progress-bar"></div>
+      </div>
       <nav className="navbar">
         <a className="logo" href="#home">
           PLAY<span>GROUND</span>®
@@ -244,6 +300,26 @@ function App() {
               <span className="card-arrow">↗</span>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="pin-section">
+        <div className="pin-content">
+          <p className="pin-label">03 / STAY A WHILE</p>
+
+          <h2>
+            DON'T
+            <br/>
+            BLINK<span>.</span>
+          </h2>
+
+          <p className="pin-description">
+            Some things are better when you slow down.
+          </p>
+
+          <span className="pin-symbol" aria-hidden="true">
+            *
+          </span>
         </div>
       </section>
 
